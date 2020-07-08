@@ -24,14 +24,14 @@ public class ParallelMultiplier implements Multiplier {
 
         for (int i = 0; i < matrixSize; i++) {
 
-            resultList.add(executorService.submit(new CellCounter(firstMatrix, secondMatrix, i)));
+            resultList.add(executorService.submit(new RowCalculator(firstMatrix, secondMatrix, i)));
 
         }
         executorService.shutdown();
 
         resultList.forEach(future -> {
 
-            RowResult rowResult = getLineResult(future);
+            RowResult rowResult = getRowResult(future);
             result[rowResult.getRow()] = rowResult.getResult();
         });
 
@@ -39,7 +39,7 @@ public class ParallelMultiplier implements Multiplier {
         return result;
     }
 
-    private static RowResult getLineResult(Future<RowResult> future) {
+    private static RowResult getRowResult(Future<RowResult> future) {
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -49,7 +49,7 @@ public class ParallelMultiplier implements Multiplier {
     }
 
     @AllArgsConstructor
-    private static class CellCounter implements Callable<RowResult> {
+    private static class RowCalculator implements Callable<RowResult> {
 
         private final int[][] firstMatrix;
         private final int[][] secondMatrix;
